@@ -1,0 +1,8 @@
+# Ignore all input text files
+**/*input*.txt
+
+# Ignore lock files
+*.lock
+*-lock.json
+
+node_modules
