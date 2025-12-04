@@ -20,27 +20,30 @@ function formatInputToArr(input: string) {
     .filter((each) => !!each.length);
 }
 
+function getDiffArr(arr: number[]) {
+  const diffArr: number[] = [];
+  for (let num = 1; num < arr.length; num++) {
+    diffArr.push(arr[num] - arr[num - 1]);
+  }
+  return diffArr;
+}
+
+function isSafe(arr: number[]) {
+  const diffArr = getDiffArr(arr);
+  const allAsc = diffArr.every((each) => each > 0);
+  const allDesc = diffArr.every((each) => each < 0);
+  const eitherAscOrDsc = allAsc || allDesc;
+  const hasValidDiff = diffArr.every((each) => Math.abs(each) <= 3);
+
+  return eitherAscOrDsc && hasValidDiff;
+}
+
 function aoc_2_1(input: string = test_input) {
   const inputArr = formatInputToArr(input);
   let safeCount = 0;
 
   for (let row of inputArr) {
-    const diffArr: number[] = [];
-    for (let num = 1; num < row.length; num++) {
-      diffArr.push(row[num] - row[num - 1]);
-    }
-    const eitherAscOrDsc =
-      diffArr.every((each) => each > 0) || diffArr.every((each) => each < 0);
-    const hasValidDiff = diffArr.every((each) => Math.abs(each) <= 3);
-
-    // console.log("----------------------\n");
-    // console.log("row          = ", row, "\n");
-    // console.log("diffarr      = ", diffArr, "\n");
-    // console.log("hasValidDiff = ", hasValidDiff, "\n");
-    // console.log("AscOrDsc     = ", eitherAscOrDsc, "\n");
-    // console.log("----------------------\n");
-
-    if (eitherAscOrDsc && hasValidDiff) {
+    if (isSafe(row)) {
       safeCount++;
     }
   }
