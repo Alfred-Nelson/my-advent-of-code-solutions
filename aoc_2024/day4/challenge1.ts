@@ -15,6 +15,11 @@ MXMXAXMASX`;
 
 const WORD = "XMAS";
 
+const wr = 0;
+const wc = 5;
+const wx = 1;
+const wy = 0;
+
 function formatInputToArr(input: string) {
   return input
     .split("\n")
@@ -22,45 +27,63 @@ function formatInputToArr(input: string) {
     .filter((each) => !!each.length);
 }
 
-function findHCF(a: number, b: number) {
-  a = Math.abs(a);
-  b = Math.abs(b);
+// The below commented code is for finding all the direction directly
+// accessible not just in single direction 45deg box. it uses HCF to
+// calculate the direct distance -> if hcf = 1 then it is reachable
+// through a direct line
+//
+// function findHCF(a: number, b: number) {
+//   a = Math.abs(a);
+//   b = Math.abs(b);
 
-  while (a !== b) {
-    if (a > b) {
-      a -= b;
-    } else {
-      b -= a;
-    }
-  }
-  return a;
-}
+//   while (b !== 0) {
+//     const temp = b;
+//     b = a % b;
+//     a = temp;
+//   }
 
-function getAllPossibleDirections(
-  arr: string[][],
-  rowIdx: number,
-  colIdx: number
-) {
-  const halfLength = arr[0].length / 2;
+//   return a;
+// }
+
+// function getViableDirections(
+//   arr: string[][],
+//   rowIdx: number,
+//   colIdx: number
+// ) {
+//   const possibleDirections: number[][] = [];
+
+//   for (let i = 0; i < arr.length; i++) {
+//     for (let j = 0; j < arr[0].length; j++) {
+//       const y = i - rowIdx;
+//       const x = j - colIdx;
+//       const cf = findHCF(x, y);
+//       if (cf === 1) {
+//         if (arr[i][j] === WORD[1]) {
+//           possibleDirections.push([x, y]);
+//         }
+//       }
+//     }
+//   }
+//   return possibleDirections;
+// }
+
+function getViableDirections(arr: string[][], rowIdx: number, colIdx: number) {
   const possibleDirections: number[][] = [];
-  for (let i = 0; i <= arr.length; i++) {
-    for (let j = 0; j <= arr[i].length; j++) {
-      const tRowIdx = rowIdx + j;
-      const tColIdx = colIdx + i;
-      const x = i - rowIdx;
-      const y = j - colIdx;
-      const cf = findHCF(x, y);
-      if (cf === 1 || cf == x || cf === 0) continue;
-      if (arr[tRowIdx]?.[tColIdx] === undefined) continue;
-      if (arr[tRowIdx][tColIdx] === WORD[1]) {
-        possibleDirections.push([j, i]);
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dy = -1; dy <= 1; dy++) {
+      const i = dy + rowIdx;
+      const j = dx + colIdx;
+      if (arr[i]?.[j] === undefined) continue;
+      if (dx === 0 && dy === 0) continue;
+      if (arr[i][j] === WORD[1]) {
+        possibleDirections.push([dx, dy]);
       }
     }
   }
   return possibleDirections;
 }
 
-function isValidDirection(
+function matchWordInDirection(
   arr: string[][],
   rowIdx: number,
   colIdx: number,
@@ -68,9 +91,9 @@ function isValidDirection(
 ) {
   const coords: number[][] = [];
   for (let i = 0; i < WORD.length; i++) {
-    const tRowIdx = rowIdx + direction[0] * i;
-    const tColIdx = colIdx + direction[1] * i;
-
+    const [dx, dy] = direction;
+    const tRowIdx = rowIdx + dy * i;
+    const tColIdx = colIdx + dx * i;
     if (arr[tRowIdx]?.[tColIdx] !== WORD[i]) return { isValid: false };
     coords.push([tRowIdx, tColIdx]);
   }
@@ -78,25 +101,29 @@ function isValidDirection(
   return { isValid: true, coords };
 }
 
-function getCountOfTheWordInAllDirection(
+function scanDirectionsForWord(
   arr: string[][],
   rowIdx: number,
   colIdx: number
 ) {
-  const allPossibleDirectons = getAllPossibleDirections(arr, rowIdx, colIdx);
-  const returnable = allPossibleDirectons.reduce(
-    (acc, cur) => {
-      const { isValid, coords } = isValidDirection(arr, rowIdx, colIdx, cur);
-      if (isValid) {
-        acc.count++;
-        acc.coords.push(...(coords as number[][]));
-      }
-      return acc;
-    },
-    { count: 0, coords: [] as number[][] }
-  );
+  const viableDirections = getViableDirections(arr, rowIdx, colIdx);
+  const directionData = {
+    count: 0,
+    coords: [] as number[][],
+    directions: [] as number[][],
+  };
 
-  return returnable;
+  for (let i = 0; i < viableDirections.length; i++) {
+    const dir = viableDirections[i];
+    const { isValid, coords } = matchWordInDirection(arr, rowIdx, colIdx, dir);
+    if (isValid) {
+      directionData.count++;
+      directionData.coords.push(...(coords as number[][]));
+      directionData.directions.push(dir);
+    }
+  }
+
+  return directionData;
 }
 
 function isInCoords(coords: number[][], i: number, j: number) {
@@ -129,7 +156,7 @@ function aoc_4_2(input: string = TEST_INPUT) {
   for (let i = 0; i < arr.length; i++) {
     for (let j = 0; j < arr[i].length; j++) {
       if (arr[i][j] === WORD[0]) {
-        const { coords: tCoords, count: val } = getCountOfTheWordInAllDirection(
+        const { coords: tCoords, count: val } = scanDirectionsForWord(
           arr,
           i,
           j
@@ -141,18 +168,6 @@ function aoc_4_2(input: string = TEST_INPUT) {
   }
 
   //   printCoords(arr, coords);
-
-  for (let i = 0; i < 9; i++) {
-    const x: string[] = [];
-    for (let j = 0; j < 9; j++) {
-      x.push(
-        [i, j]
-          .map((each) => String(Math.abs(each - 4)).padStart(2, "0"))
-          .join("")
-      );
-    }
-    console.log(x.join("   ") + "\n\n");
-  }
 
   return count;
 }
