@@ -148,7 +148,7 @@ function printCoords(arr: string[][], coords: number[][]) {
   }
 }
 
-function aoc_4_2(input: string = TEST_INPUT) {
+function aoc_4_1(input: string = TEST_INPUT) {
   const arr = formatInputToArr(input);
   let count = 0;
   const coords: number[][] = [];
@@ -173,5 +173,5 @@ function aoc_4_2(input: string = TEST_INPUT) {
 }
 
 const executor = await helpers.makeExecutorWithInput();
-const answer = executor(aoc_4_2);
+const answer = executor(aoc_4_1);
 console.log(helpers.formatAnswer(answer));
