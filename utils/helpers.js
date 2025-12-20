@@ -40,7 +40,7 @@ const helpers = {
    * @param {MakeSelectPropType}
    */
   async makeSelect({
-    question = "",
+    question = "Select option",
     path = ".",
     filterCondition = null,
     labelFormatter = (dir) => dir.name.replace(/\D/g, ""),
@@ -109,8 +109,12 @@ const helpers = {
   /**
    *
    * @param {string | number} answer
+   * @param {string} [input]
    */
-  formatAnswer(answer) {
+  formatAnswer(answer, input = undefined) {
+    if (!!input) {
+      return "│\n│\n│ input: " + input + "\n| answer: " + answer + "\n│\n│";
+    }
     return "│\n│\n│ answer: " + answer + "\n│\n│";
   },
 };
