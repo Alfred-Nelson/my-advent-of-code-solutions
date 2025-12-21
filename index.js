@@ -12,7 +12,7 @@ async function genericSelector() {
   let iteration = 1;
   let path = ".";
 
-  while (!path.endsWith(".ts")) {
+  while (!path.endsWith(".ts") && !path.endsWith(".js")) {
     const filterCondition = (dir) => {
       const isNotIgnored = !IGNORE_LIST.some(
         (ignore) => dir.name.includes(ignore) || dir.name.includes("aoc")
