@@ -10,7 +10,7 @@
 // If such arrangement is not possible, the array must be rearranged
 //  as the lowest possible order (i.e., sorted in ascending order).
 
-// ! MISTAKE - not in place ... took time to read that
+// ! MISTAKE - not in place ... only read that after I wrote this
 
 import helpers from "../../../utils/helpers";
 
@@ -27,7 +27,19 @@ const TESTS = {
 var nextPermutation = function (nums) {
   const lastOnesArr = [];
   for (let i = nums.length - 1; i > 0; i--) {
+    // ! GPT-POINTED-MISTAKE-1: Pivot detection is inverted and confusing
+    // * Rule: Prefer code that matches the mental model of the problem.
+    // it should have been while(nums[i] < nums[i + 1])
+    // not for -> if oppositeCondition
+    // affects readability
+    // “If someone knows the algorithm already, can they recognize it instantly?”
+    //Does the condition read the same way the problem statement reads?
+    // Am I using negations or inversions that aren’t necessary?
     if (nums[i] < nums[i - 1]) {
+      // ! GPT-POINTED-MISTAKE-1: lastOnesArr ordering is unclear
+      // * Rule: Data structures should have a clear invariant.
+      // If correctness relies on something unstated, it’s fragile.
+      // “If I had to write a comment explaining this array, could I do it in one sentence?”
       lastOnesArr.push(nums[i]);
       lastOnesArr.push(nums[i - 1]);
       continue;
@@ -43,6 +55,12 @@ var nextPermutation = function (nums) {
           ...lastOnesArr.slice(0, idx),
           ...lastOnesArr.slice(idx + 1),
         ];
+        // ! GPT-POINTED-MISTAKE-1: Early return hides complexity
+        // * Rule: Complex logic should have predictable control flow.
+        // Early returns are great when:
+        //  - Handling edge cases
+        //  - Guard clauses
+        //  - Simple conditions
         return returnable;
       }
     }
