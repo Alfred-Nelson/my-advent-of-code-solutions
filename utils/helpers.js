@@ -117,6 +117,40 @@ const helpers = {
     }
     return "│\n│\n│ answer: " + answer + "\n│\n│";
   },
+
+  /**
+   * @param {boolean[]} conditions
+   */
+  getConditionsLogger(...conditions) {
+    let logger = () => {};
+    let conditionList = [...conditions];
+    if (conditionList.every(Boolean)) {
+      logger = console.log;
+    }
+
+    function resetLogger() {
+      if (!conditionList.every(Boolean) || !conditionList.length) {
+        logger = () => {};
+      }
+    }
+
+    function withNewCondition(newCondition) {
+      conditionList.push(newCondition);
+      resetLogger();
+    }
+
+    function replaceLastCondition(newCondition) {
+      conditionList = [...conditionList.slice(0, -1), newCondition];
+      resetLogger();
+    }
+
+    function resetConditions() {
+      conditionList = [];
+      resetLogger();
+    }
+
+    return { logger, withNewCondition, replaceLastCondition, resetConditions };
+  },
 };
 
 export default helpers;
